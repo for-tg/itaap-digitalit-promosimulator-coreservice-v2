@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Pickle Contract</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F5F6F8;
+  --surface:#FFFFFF;
+  --surface-2:#EEF0F4;
+  --ink:#141820;
+  --ink-2:#474F5E;
+  --muted:#6E7684;
+  --rule:#E0E4EA;
+  --rule-soft:#EDEFF3;
+  --accent:#25497E;
+  --accent-soft:#E9EEF6;
+  --pass:#1A6B48;
+  --fail:#A32A1D;
+  --sans:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif;
+  --serif:"IBM Plex Serif",Georgia,serif;
+  --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1217;--surface:#171B22;--surface-2:#1F242C;
+    --ink:#E7EAF0;--ink-2:#BAC1CD;--muted:#8E97A6;
+    --rule:#2B313B;--rule-soft:#232830;
+    --accent:#96B6E8;--accent-soft:#1B2432;
+    --pass:#63C08F;--fail:#E8867C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1217;--surface:#171B22;--surface-2:#1F242C;
+  --ink:#E7EAF0;--ink-2:#BAC1CD;--muted:#8E97A6;
+  --rule:#2B313B;--rule-soft:#232830;
+  --accent:#96B6E8;--accent-soft:#1B2432;
+  --pass:#63C08F;--fail:#E8867C;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:2rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--sans);font-size:14.5px;line-height:1.52;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 2.2rem}
+
+header.top{padding:3.6rem 0 1.9rem;border-bottom:1px solid var(--rule)}
+.kicker{
+  font-family:var(--mono);font-size:.67rem;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 .85rem;
+}
+h1{font-size:2.3rem;line-height:1.08;margin:0 0 .75rem;font-weight:500;letter-spacing:-.022em}
+.sub{font-family:var(--serif);font-size:1.02rem;color:var(--ink-2);margin:0;max-width:54ch}
+.meta-line{
+  margin:1.5rem 0 0;font-family:var(--mono);font-size:.7rem;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:.35rem 1.6rem;max-width:none;
+}
+
+nav.toc{padding:1.15rem 0;border-bottom:1px solid var(--rule);margin-bottom:3rem}
+nav.toc ol{
+  list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:.12rem 1.3rem;
+}
+nav.toc a{display:block;padding:.16rem 0;color:var(--ink-2);text-decoration:none;font-size:.8rem}
+nav.toc a b{font-family:var(--mono);color:var(--muted);font-weight:400;margin-right:.55rem}
+nav.toc a:hover,nav.toc a:hover b{color:var(--accent)}
+nav.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main{padding-bottom:3rem;display:flex;flex-direction:column;gap:3.4rem}
+section{scroll-margin-top:2rem}
+h2{
+  font-size:1.15rem;font-weight:600;margin:0 0 1.05rem;letter-spacing:-.012em;
+  padding-bottom:.52rem;border-bottom:1px solid var(--rule);
+  display:flex;align-items:baseline;gap:.8rem;
+}
+h2 b{font-family:var(--mono);font-size:.74rem;font-weight:400;color:var(--muted)}
+h3{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;margin:2.1rem 0 .6rem;
+}
+p{margin:.55rem 0;max-width:70ch}
+.lead{font-family:var(--serif);color:var(--ink-2);font-size:.97rem;max-width:62ch}
+.tight{font-size:.83rem;color:var(--ink-2);max-width:76ch}
+
+code{font-family:var(--mono);font-size:.85em;color:var(--ink);white-space:nowrap}
+.cite{font-family:var(--mono);font-size:.71em;color:var(--muted);white-space:nowrap}
+a{color:var(--accent);text-underline-offset:2px}
+
+pre{
+  background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+  padding:.95rem 1.05rem;overflow-x:auto;margin:.85rem 0;
+  font-family:var(--mono);font-size:.755rem;line-height:1.62;color:var(--ink-2);
+}
+pre b{color:var(--accent);font-weight:500}
+pre i{color:var(--muted);font-style:normal}
+
+.tw{overflow-x:auto;margin:.85rem 0;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.805rem}
+th,td{text-align:left;padding:.46rem .75rem;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+thead th{
+  font-family:var(--mono);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;border-bottom:1px solid var(--rule);background:var(--surface-2);
+}
+tbody tr:last-child td{border-bottom:none}
+td.m,th.m{font-family:var(--mono);font-size:.755rem}
+td.n{font-variant-numeric:tabular-nums}
+td.ex{font-family:var(--mono);font-size:.745rem;color:var(--accent)}
+
+.tag{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;
+  padding:.12em .45em;border-radius:2px;white-space:nowrap;
+}
+.tag.fix{background:var(--accent-soft);color:var(--accent)}
+.tag.dyn{background:var(--surface-2);color:var(--ink-2)}
+.tag.ok{background:var(--surface-2);color:var(--pass)}
+.tag.pkl{background:var(--surface-2);color:var(--fail)}
+
+.phase{display:flex;align-items:center;gap:.8rem;margin:1.9rem 0 .7rem}
+.phase span{
+  font-family:var(--mono);font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);font-weight:500;
+}
+.phase i{flex:1;height:1px;background:var(--rule);display:block}
+.stack{border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--rule)}
+.stack .step{background:var(--surface);padding:.85rem 1.05rem;display:block}
+.stack .step + .step{border-top:1px solid var(--rule-soft)}
+.step-t{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.35rem}
+.step-t em{font-family:var(--mono);font-size:.7rem;font-style:normal;color:var(--accent);min-width:1.35rem}
+.step-t b{font-size:.9rem;font-weight:600;letter-spacing:-.005em}
+.step p{margin:0 0 0 2.05rem;font-size:.845rem;color:var(--ink-2);max-width:76ch}
+.step .chk{margin:.42rem 0 0 2.05rem;font-size:.79rem;color:var(--pass);display:flex;gap:.55rem;align-items:baseline}
+.step .chk span{
+  font-family:var(--mono);font-size:.61rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);flex:none;padding-top:.05rem;
+}
+
+ul.plain{list-style:none;margin:.65rem 0;padding:0}
+ul.plain li{
+  padding:.38rem 0 .38rem 1.45rem;border-bottom:1px solid var(--rule-soft);
+  font-size:.84rem;position:relative;color:var(--ink-2);max-width:82ch;
+}
+ul.plain li::before{
+  content:"";position:absolute;left:0;top:.66rem;width:.72rem;height:1px;background:var(--rule);
+}
+ul.plain li:last-child{border-bottom:none}
+ul.plain b{color:var(--ink)}
+
+.defect{padding:.78rem 0;border-bottom:1px solid var(--rule-soft)}
+.defect:last-child{border-bottom:none}
+.defect .dt{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
+.defect b{color:var(--fail);font-weight:600;font-size:.87rem}
+.defect p{margin:.3rem 0 0;font-size:.84rem;color:var(--ink-2);max-width:82ch}
+
+.scores{display:flex;gap:2.8rem;margin:1.05rem 0 .5rem;flex-wrap:wrap}
+.scores div{display:flex;flex-direction:column;gap:.14rem}
+.scores span{
+  font-family:var(--mono);font-size:.63rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+}
+.scores strong{font-size:1.4rem;font-weight:500;font-variant-numeric:tabular-nums}
+.scores .ok strong{color:var(--pass)}
+.scores .no strong{color:var(--fail)}
+.scores em{font-style:normal;font-size:.76rem;color:var(--muted)}
+
+footer{border-top:1px solid var(--rule);padding:1.5rem 0 3.2rem;font-size:.755rem;color:var(--muted)}
+footer p{margin:.28rem 0;max-width:84ch}
+
+@media (max-width:720px){
+  .wrap{padding:0 1.1rem}
+  header.top{padding-top:2.3rem}
+  h1{font-size:1.8rem}
+  main{gap:2.5rem}
+  .step p,.step .chk{margin-left:0}
+}
+@media print{
+  body{background:#fff;font-size:10pt}
+  nav.toc{display:none}
+  section{break-inside:avoid-page}
+  thead th{background:transparent}
+  .stack .step{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Promo Simulator &middot; core service</p>
+  <h1>Market Pickle Contract</h1>
+  <p class="sub">One artifact per market. What must be inside it, what the market decides for
+  itself, and how a new one is built.</p>
+  <p class="meta-line">
+    <span>schema 1.0</span>
+    <span>proposed &mdash; no code changed</span>
+    <span>reference build: Promo_Eff_EconMLv2__1_.ipynb</span>
+    <span>validator: 40 rules</span>
+  </p>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <ol>
+    <li><a href="#s1"><b>01</b>The shape</a></li>
+    <li><a href="#s2"><b>02</b>Mandatory</a></li>
+    <li><a href="#s3"><b>03</b>Dynamic</a></li>
+    <li><a href="#s4"><b>04</b>The meta block</a></li>
+    <li><a href="#s5"><b>05</b>Maintenance</a></li>
+    <li><a href="#s6"><b>06</b>Build steps</a></li>
+    <li><a href="#s7"><b>07</b>Checklist</a></li>
+    <li><a href="#s8"><b>08</b>CZ example</a></li>
+    <li><a href="#s9"><b>09</b>Static today</a></li>
+    <li><a href="#s10"><b>10</b>Validation</a></li>
+    <li><a href="#s11"><b>11</b>Defects found</a></li>
+    <li><a href="#s12"><b>12</b>Open questions</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><b>01</b> The shape</h2>
+  <p class="lead">The pickle is the market. One <code>dict</code> carrying a weekly SKU panel, a
+  fitted elasticity model, the name lists that model was fitted with, and a cost table. The backend
+  loads exactly one at startup <span class="cite">model_loader.py:358-414</span> and holds it in
+  module globals for the life of the process. No database sits behind the simulation maths.</p>
+  <p class="lead">Everything that differs between markets therefore has to travel inside the
+  artifact. That is the whole contract: a small fixed skeleton the backend can rely on, and a
+  declared payload the market owns.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Layer</th><th>Decided by</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag fix">fixed</span></td><td>this contract</td>
+          <td>Six top-level keys, fourteen structural panel columns, two cost columns. The same names in every market.</td></tr>
+      <tr><td><span class="tag dyn">dynamic</span></td><td>the market</td>
+          <td>Every model feature, every confounder, and the labels, rates and week windows that genuinely differ &mdash; declared in <code>feature_names</code>, <code>confounder_names</code> and <code>meta</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tight">Anything that is the same in every market stays in the code. <code>meta</code>
+  carries only what a market actually changes &mdash; see the exclusions at the end of &sect;4.</p>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><b>02</b> Mandatory</h2>
+
+  <h3>Top-level keys &mdash; all six</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Holds</th></tr></thead>
+    <tbody>
+      <tr><td class="m">panel_df</td><td class="m">DataFrame</td><td>Weekly SKU panel: history plus the plan year</td></tr>
+      <tr><td class="m">glc_pe</td><td class="m">DataFrame</td><td>Per-SKU cost reference</td></tr>
+      <tr><td class="m">model</td><td class="m">CausalForestDML</td><td>Fitted elasticity model, called only via <code>.effect(X, T0, T1)</code></td></tr>
+      <tr><td class="m">feature_names</td><td class="m">list[str]</td><td>Ordered X column names, exactly as fitted</td></tr>
+      <tr><td class="m">confounder_names</td><td class="m">list[str]</td><td>Ordered W column names, exactly as fitted</td></tr>
+      <tr><td class="m">meta</td><td class="m">dict</td><td>What the market changes &mdash; &sect;4</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tight">Five are already required by the loader
+  <span class="cite">model_loader.py:23-29</span>. <code>meta</code> is new. No other top-level key;
+  the validator warns on extras.</p>
+
+  <h3>panel_df &mdash; structural columns</h3>
+  <p class="tight">Grain: one row per <b>(SKU, Year, Week)</b>, no duplicates. These fourteen names
+  never change. None of them is a model feature &mdash; features are &sect;3.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Column</th><th>dtype</th><th>Meaning</th><th>Null</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td class="m">SKU</td><td class="m">str</td><td>SKU code</td><td>no</td><td>joins to <code>glc_pe.SKU</code></td></tr>
+      <tr><td class="m">Year</td><td class="m">int64</td><td>Calendar year, plan year included</td><td>no</td><td>integer, not a timestamp</td></tr>
+      <tr><td class="m">Week</td><td class="m">int64</td><td>ISO week</td><td>no</td><td>1&hellip;<code>weeks_per_year</code></td></tr>
+      <tr><td class="m">Classification</td><td class="m">str</td><td>Price band / tier</td><td>no</td><td>constant per SKU; in <code>meta.segment_labels</code></td></tr>
+      <tr><td class="m">Price</td><td class="m">float64</td><td>Sell-out price per unit</td><td>plan rows</td><td>same price level as <code>COGS</code></td></tr>
+      <tr><td class="m">Qty</td><td class="m">float64</td><td>Sell-out units</td><td>plan rows</td><td>&gt; 0 where observed</td></tr>
+      <tr><td class="m">log_price</td><td class="m">float64</td><td>Treatment T</td><td>plan rows</td><td>= <code>log(Price)</code></td></tr>
+      <tr><td class="m">log_qty</td><td class="m">float64</td><td>Outcome Y</td><td>plan rows</td><td>= <code>log(Qty)</code></td></tr>
+      <tr><td class="m">Price_base</td><td class="m">float64</td><td>Counterfactual non-promo price</td><td>no</td><td><b>&ge; <code>Price</code></b></td></tr>
+      <tr><td class="m">Qty_base</td><td class="m">float64</td><td>Counterfactual non-promo units</td><td>no</td><td><b>&gt; 0</b> &mdash; logged unguarded <span class="cite">promo_engine.py:394</span></td></tr>
+      <tr><td class="m">log_price_base</td><td class="m">float64</td><td>&mdash;</td><td>no</td><td>must agree with <code>Price_base</code></td></tr>
+      <tr><td class="m">log_qty_base</td><td class="m">float64</td><td>&mdash;</td><td>no</td><td>must agree with <code>Qty_base</code> &mdash; &sect;11</td></tr>
+      <tr><td class="m">raw_discount</td><td class="m">float64</td><td><code>1 &minus; Price / rolling-max price</code></td><td>no</td><td>in [0, 1)</td></tr>
+      <tr><td class="m">display_discount</td><td class="m">float64</td><td>Presentation rounding of the above</td><td>no</td><td>never used in maths</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tight"><b>Nulls.</b> Plan-year rows carry no actuals, so those four columns are null
+  there by construction. Everything else must be non-null on <em>every</em> row &mdash;
+  <code>build_X_W</code> slices straight into numpy with no imputation
+  <span class="cite">promo_engine.py:218-221</span>.</p>
+
+  <h3>glc_pe</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Column</th><th>dtype</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td class="m">SKU</td><td class="m">str</td><td>exactly one row per SKU; every panel SKU present</td></tr>
+      <tr><td class="m">COGS</td><td class="m">float64</td><td>strictly positive, panel currency, same price level as <code>Price</code></td></tr>
+    </tbody>
+  </table></div>
+  <p class="tight">A SKU with no cost row is silently dropped from every simulation
+  <span class="cite">promo_engine.py:840-843</span> &mdash; no error, just a smaller portfolio.
+  Extra columns are carried and ignored.</p>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><b>03</b> Dynamic</h2>
+  <p class="lead">Features and confounders are <b>not</b> prescribed. What is mandatory is that the
+  artifact <em>declares</em> them; what goes in the declaration is the market's own modelling
+  decision. Two markets can share nothing but the skeleton and both be valid.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Declared in</th><th>Contains</th><th>Contract requires</th></tr></thead>
+    <tbody>
+      <tr><td class="m">feature_names</td>
+          <td>Every X column in fit order &mdash; one-hots, event flags, promo-history features, anything else the market modelled</td>
+          <td>unique strings; length equals the model's X width; equals <code>model._input_names</code></td></tr>
+      <tr><td class="m">confounder_names</td>
+          <td>Every W column &mdash; media, seasonality, competitor pressure, or none</td>
+          <td>each a numeric, non-null panel column; length equals the model's W width</td></tr>
+      <tr><td class="m">feature_spec.categorical</td>
+          <td>Columns that were one-hot encoded: <code>Classification</code> always, plus a family or platform column if the market has one</td>
+          <td>constant per SKU, non-null, <b>strictly coarser than SKU</b></td></tr>
+      <tr><td class="m">feature_spec.numeric</td>
+          <td>Columns passed into X as they are</td>
+          <td>numeric and non-null on every row, history and plan</td></tr>
+      <tr><td class="m">event_flags</td>
+          <td>The market's retail calendar, one <code>flag_*</code> column per event</td>
+          <td>0/1 floats on every row; at least one, or the engine stamps the Czech calendar on <span class="cite">promo_engine.py:176-183</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Two constraints on what you declare</h3>
+  <ul class="plain">
+    <li><b>A categorical must group SKUs, never be one.</b> One-hot the SKU itself and the forest
+      splits on product identity instead of pricing behaviour. The reference build hit this and had
+      to drop two families, one holding ~0.82 of feature importance alone
+      <span class="cite">notebook cell 72</span>. For scale, 6&nbsp;438 history rows over 78 SKUs is
+      a median of 44 rows per product against 104 per family. Rule <code>P7</code> rejects a
+      categorical with as many levels as there are SKUs.</li>
+    <li><b>The panel may not produce a one-hot column the model has never seen</b> &mdash; the engine
+      raises on it <span class="cite">promo_engine.py:208-210</span>. The reverse is safe: names in
+      <code>feature_names</code> that the panel lacks are filled with 0.0. So
+      <code>feature_names</code>, not the panel, is the authority on X.</li>
+  </ul>
+  <p class="tight">The one-hot reference level is <em>not</em> declared anywhere:
+  <code>drop_first=True</code> always removes the lexicographically first label, so it is
+  <code>sorted(segment_labels)[0]</code> &mdash; <code>"HRTB"</code> for CZ. The validator derives
+  and reports it rather than asking the artifact to repeat it.</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><b>04</b> The meta block</h2>
+  <p class="lead">Twenty-eight fields, all required. Each one exists because a market changes it
+  <em>and</em> the backend reads it &mdash; the last column is the address the refactor has to visit.
+  The example column is the Czech value. Blank copy in <code>meta_template.json</code>, filled copy
+  in <code>meta_CZ_example.json</code>.</p>
+
+  <h3>Identity</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th><th>Changes in</th></tr></thead>
+    <tbody>
+      <tr><td class="m">schema_version</td><td class="m">str</td><td>Contract version this artifact was built against, so the loader can refuse one it cannot read.</td><td class="ex">"1.0"</td><td class="cite">model_loader.py<br>180-190 &mdash; new gate</td></tr>
+      <tr><td class="m">market_code</td><td class="m">str</td><td>Short uppercase code. The market's identity everywhere, instead of reading it off the filename.</td><td class="ex">"CZ"</td><td class="cite">settings.py:281-283<br>model_loader.py:149</td></tr>
+      <tr><td class="m">market_name</td><td class="m">str</td><td>Full name, for anything shown to a user or written into a log line.</td><td class="ex">"Czech Republic"</td><td class="cite">no consumer yet</td></tr>
+      <tr><td class="m">channel</td><td class="m">str &vert; null</td><td>The retailer, when the panel covers one retailer rather than the whole market. <code>null</code> means total market. Required as a key; the value may be null.</td><td class="ex">null</td><td class="cite">no consumer yet</td></tr>
+      <tr><td class="m">portfolio_label</td><td class="m">str</td><td>What the SKU set is called in the interface.</td><td class="ex">"Philips Oral Care portfolio"</td><td class="cite">simulation_router.py<br>133, 252</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Currency</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th><th>Changes in</th></tr></thead>
+    <tbody>
+      <tr><td class="m">currency_code</td><td class="m">str</td><td>ISO 4217 code of every money value in the panel and cost table. Also names the return-per-currency response field.</td><td class="ex">"CZK"</td><td class="cite">historical_data_service.py<br>239, 312, 421</td></tr>
+      <tr><td class="m">currency_symbol</td><td class="m">str</td><td>Symbol used in generated insight text. Fourteen hardcoded occurrences today.</td><td class="ex">"K&#269;"</td><td class="cite">simulation_service.py<br>371, 375, 386, 388, 408,<br>423, 425, 452, 494-495,<br>862, 865, 1047</td></tr>
+      <tr><td class="m">price_decimals</td><td class="m">int</td><td>How many decimals money is shown to. The backend prints every currency figure with <code>:,.0f</code>, which is right for koruna and wrong for euro &mdash; 12.34 &euro; would render as 12 &euro;. Set it from the currency's smallest meaningful unit. Quantities are never rounded.</td><td class="ex">0</td><td class="cite">simulation_service.py<br>234 and the same lines<br>as currency_symbol</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Calendar</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th><th>Changes in</th></tr></thead>
+    <tbody>
+      <tr><td class="m">weeks_per_year</td><td class="m">int</td><td>How many week slots this panel carries. Not a market constant and not always 52: ISO years have 53 weeks whenever 1 January falls on a Thursday &mdash; 2020 and 2026 both do. Every week loop and accumulator sizes off this.</td><td class="ex">52</td><td class="cite">promo_engine.py<br>876, 888, 905<br>simulation_service.py<br>96, 107-119, 190</td></tr>
+      <tr><td class="m">history_years</td><td class="m">list[int]</td><td>Years that carry actuals. Drives the year pickers and the retrospective view.</td><td class="ex">[2023, 2024, 2025]</td><td class="cite">simulation_service.py<br>26, 32<br>skus_router.py:86<br>requests.py:17, 29-32</td></tr>
+      <tr><td class="m">plan_year</td><td class="m">int</td><td>The year being planned. Must not appear in <code>history_years</code>.</td><td class="ex">2026</td><td class="cite">requests.py:57-60<br>promo_engine.py:871</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Events</h3>
+  <p class="tight">A list, one entry per retail event. Every column named here must exist in the
+  panel on every row of history <em>and</em> plan. Replaces
+  <span class="cite">promo_engine.py:121, 157-170, 176-183</span> &mdash; the Czech calendar the
+  engine stamps onto any panel that arrives without those columns.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td class="m">event_flags[].col</td><td class="m">str</td><td>The panel column holding the 0/1 flag. Must start <code>flag_</code>.</td><td class="ex">"flag_black_november"</td></tr>
+      <tr><td class="m">event_flags[].label</td><td class="m">str</td><td>Display name for the event.</td><td class="ex">"Black November"</td></tr>
+      <tr><td class="m">event_flags[].weeks</td><td class="m">list[int]</td><td>Weeks the event covers. For a moving event, the union across all years.</td><td class="ex">[45, 46, 47, 48]</td></tr>
+      <tr><td class="m">event_flags[]<br>.weeks_by_year</td><td class="m">dict &mdash; only for<br>moving events</td><td>Year to that year's weeks. Easter shifts by up to five weeks, so one fixed number is always wrong for some year.</td><td class="ex">{"2025":[16,17],<br>"2026":[14,15]}</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Segments and features</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th><th>Changes in</th></tr></thead>
+    <tbody>
+      <tr><td class="m">segment_labels</td><td class="m">list[str]</td><td>Every value <code>Classification</code> may take. Filters, request validation and error messages all come from this list. The one-hot reference level is derived from it, not declared.</td><td class="ex">["HRTB", "LRTB", "MRTB"]</td><td class="cite">promo_engine.py:55<br>sku_service.py:21-25, 205<br>historical_data_service.py<br>22-26, 527<br>skus_router.py:22<br>simulation_service.py<br>685, 713<br>historical_data_router.py<br>42-44<br>sku_master_router.py:47</td></tr>
+      <tr><td class="m">feature_spec<br>.categorical</td><td class="m">list[str]</td><td>Exactly the columns that were one-hot encoded. <code>Classification</code> always; add a grouping column only if the market has one.</td><td class="ex">["Classification", "SKU_ctg"]</td><td class="cite">promo_engine.py<br>20, 197-198, 201</td></tr>
+      <tr><td class="m">feature_spec<br>.numeric</td><td class="m">list[str]</td><td>Exactly the columns passed into X unencoded, in fit order. Whatever this market modelled.</td><td class="ex">["flag_black_november", &hellip;,<br>"Year", "is_imputed", &hellip;]</td><td class="cite">promo_engine.py<br>19-31, 201-206</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Economics</h3>
+  <p class="tight">All rates are fractions of 1. They drive the Triple Net bridge and the profit
+  waterfall, so a wrong value here is silently wrong money rather than an error.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th><th>Changes in</th></tr></thead>
+    <tbody>
+      <tr><td class="m">vat_rate</td><td class="m">float</td><td>Gross-up multiplier, not the percentage: 21% VAT is 1.21.</td><td class="ex">1.21</td><td class="cite">promo_engine.py:46, 48</td></tr>
+      <tr><td class="m">trade_spend_rate</td><td class="m">float</td><td>Share of gross price given away as trade investment.</td><td class="ex">0.29965</td><td class="cite">promo_engine.py:47, 48</td></tr>
+      <tr><td class="m">tpw_rate_tn</td><td class="m">float</td><td>Trade promotion and warehousing, on triple net.</td><td class="ex">0.0131</td><td class="cite">promo_engine.py:49, 51, 266</td></tr>
+      <tr><td class="m">ofse_rate_tn</td><td class="m">float</td><td>Overheads and field sales, on triple net.</td><td class="ex">0.0664</td><td class="cite">promo_engine.py:50, 51, 266</td></tr>
+      <tr><td class="m">legacy_tpw_rate<br>legacy_ap_rate<br>legacy_ofse_rate</td><td class="m">float</td><td>The older, non-Triple-Net cost path, still selectable per request.</td><td class="ex">0.01 / 0.16 / 0.07</td><td class="cite">promo_engine.py<br>40-43, 269</td></tr>
+      <tr><td class="m">legacy_trade_cost_rate</td><td class="m">float</td><td>Flat trade cost used by the historical dashboard.</td><td class="ex">0.24</td><td class="cite">historical_data_service.py<br>27, 165</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Optimizer</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>What it is</th><th>Example</th><th>Changes in</th></tr></thead>
+    <tbody>
+      <tr><td class="m">discount_grid</td><td class="m">{min, max, step,<br>include_zero}</td><td>The discount depths the optimizer may choose between.</td><td class="ex">{0.05, 0.40, 0.01, true}</td><td class="cite">promo_engine.py:54</td></tr>
+      <tr><td class="m">max_discount_default</td><td class="m">float</td><td>Depth cap offered by default before a user changes it.</td><td class="ex">0.25</td><td class="cite">requests.py:20, 67<br>scenario_config.py:82</td></tr>
+      <tr><td class="m">delta_clip</td><td class="m">tuple(float, float)</td><td>Bound on the log-uplift before it is exponentiated, so one extreme prediction cannot dominate a scenario. A 2-tuple, consumed as <code>np.clip(x, *delta_clip)</code>.</td><td class="ex">(-3.0, 3.0)</td><td class="cite">promo_engine.py<br>53, 288, 445</td></tr>
+      <tr><td class="m">peak_week_priority</td><td class="m">list[{weeks,<br>multiplier}]</td><td>Weight applied when ranking candidate weeks. Ordered, first match wins; unlisted weeks score 1.0.</td><td class="ex">[{[45,46,47,48], 1.40},<br>{[49,50,51], 1.35}, &hellip;]</td><td class="cite">promo_engine.py<br>359-372, 467, 548-552</td></tr>
+      <tr><td class="m">mandatory_campaign_weeks</td><td class="m">list[int]</td><td>Weeks in which every SKU must be given at least one promotion.</td><td class="ex">[43 &hellip; 51]</td><td class="cite">promo_engine.py:653, 659</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Deliberately not in meta</h3>
+  <p class="tight">Each of these was considered and left out, because it is either the same in every
+  market or derivable. Recorded so the decision is not re-litigated.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Not carried</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="m">quarters<br>full_period_label</td><td>Thirteen-week calendar quarters and the label <code>"Full year"</code> are the same in every market. They stay as constants in <span class="cite">promo_engine.py:57-62</span> and the six places the label appears. Revisit only if a market plans on a fiscal or retail calendar rather than a calendar year.</td></tr>
+      <tr><td class="m">confidence_tier_labels</td><td>The three recommendation labels are interface English, identical everywhere <span class="cite">promo_engine.py:1148-1154</span>. A translation layer would own them, not the artifact.</td></tr>
+      <tr><td class="m">segment_reference_label</td><td>Fully derivable: <code>drop_first=True</code> removes <code>sorted(segment_labels)[0]</code>. Storing it would only create a second source of truth that can disagree.</td></tr>
+      <tr><td class="m">cogs_price_level</td><td>A global convention, not a market choice, and no backend code branches on it. The underlying assumption stays open &mdash; &sect;12.</td></tr>
+      <tr><td class="m">coverage.*</td><td>Where real data starts and stops. No consumer: the engine assumes a complete plan year. Add it the day a market ships a partially observed one.</td></tr>
+      <tr><td class="m">built_at, built_by,<br>source_files,<br>library_versions,<br>build_params</td><td>Provenance. Never read at serving time, so it is out of the contract. Keep it with the build instead &mdash; without the build parameters an artifact cannot be rebuilt to match itself, and without library versions nothing explains the <code>InconsistentVersionWarning</code> an older scikit-learn raises on a newer pickle.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>The block in full</h3>
+  <p class="tight">Every field above, populated for CZ and shown in place inside the whole
+  artifact, is in <a href="#s8">&sect;8</a>. Blank copy to fill in:
+  <code>meta_template.json</code>.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><b>05</b> Maintenance</h2>
+  <p class="lead">Not part of the file format and not a backend document &mdash; this is the working
+  rule for whoever owns a market artifact once the refactor has landed. Every change in the table
+  below is made by rebuilding the pickle, not by editing <code>app/</code>.</p>
+  <p class="lead">One sentence keeps it from rotting: <b>the pickle declares, the code reads.</b> No
+  market fact belongs in <code>app/</code>, and no modelling choice belongs anywhere but
+  <code>feature_names</code>, <code>confounder_names</code> and <code>meta</code>.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Change</th><th>What you rebuild</th><th>Backend code</th></tr></thead>
+    <tbody>
+      <tr><td>Add or drop a model feature</td><td>panel column &rarr; <code>feature_spec</code> &rarr; refit &rarr; revalidate</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Add or drop a confounder</td><td>panel column &rarr; <code>confounder_names</code> &rarr; refit</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Change an event calendar</td><td><code>meta.event_flags</code> &rarr; rebuild the flag columns</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Correct a VAT or trade-spend rate</td><td><code>meta.economics</code> &rarr; rebuild</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Rename a price band</td><td><code>meta.segment_labels</code> &rarr; refit, since the one-hot names change</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Plan a 53-week year</td><td><code>meta.weeks_per_year</code> &rarr; rebuild the spine and the plan year</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Onboard a market</td><td>&sect;6, then &sect;7</td><td><span class="tag ok">untouched</span></td></tr>
+      <tr><td>Change the contract itself</td><td>bump <code>schema_version</code>, update the validator and this page together</td><td>loader gate</td></tr>
+    </tbody>
+  </table></div>
+
+  <ul class="plain">
+    <li><b>The validator is the gate.</b> Run it as the last cell of the build and again in the
+      deployment pipeline. A pickle that has not passed does not ship.</li>
+    <li><b>Version the contract, not the market.</b> <code>schema_version</code> moves when the
+      required shape changes, so the loader can refuse an artifact it is too old to read. A market
+      rebuilding to the same shape does not bump it.</li>
+    <li><b>Rebuild is the update path.</b> Because economics live in the artifact, changing a rate
+      means rebuilding it &mdash; the deliberate cost of a self-describing pickle. The alternative
+      was a second config file that drifts out of sync.</li>
+    <li><b>Keep the build parameters with the build.</b> They are out of the contract, so the
+      notebook is now the only record of the base-price window, the noise threshold and the seed.
+      Losing it means the artifact cannot be reproduced.</li>
+    <li><b>One market per process, today.</b> <code>init_engine</code> writes module globals behind
+      a one-shot guard <span class="cite">promo_engine.py:130-142</span>, so a second call is a
+      silent no-op. Serving two markets from one process needs that state moved into an instance.</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><b>06</b> Build steps</h2>
+  <p class="lead">Execution order, market-agnostic. Five phases, seventeen steps. The parameters
+  named along the way are not carried in <code>meta</code>, so record them in the build itself
+  &mdash; a constant block at the top of the notebook &mdash; or the artifact cannot be reproduced.</p>
+
+  <div class="phase"><span>A &middot; Panel</span><i></i></div>
+  <div class="stack">
+    <div class="step">
+      <div class="step-t"><em>01</em><b>Load the sell-out panel</b></div>
+      <p>Units and price per SKU per week from whatever source the market uses, plus each SKU's price band.</p>
+      <div class="chk"><span>check</span>Row and SKU counts tie to the source extract.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>02</em><b>Resolve one quantity series</b></div>
+      <p>Pick the authoritative volume column, forward-fill within each SKU, fall back to the secondary series where it is still missing, and null out any SKU on a known-wrong unit scale rather than letting it distort elasticities.</p>
+      <div class="chk"><span>check</span>No nulls remain and total volume ties to the source.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>03</em><b>Build the week spine and classify gaps</b></div>
+      <p>Cross-join every SKU with every year and every week from 1 to that year's week count &mdash; 53 in an ISO year that has one. Label each missing row pre-launch, post-exit or mid-life gap; fill the mid-life gaps only and mark them; drop the other two.</p>
+      <div class="chk"><span>check</span>Grain is unique on (SKU, Year, Week) and no year is silently truncated at 52.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>04</em><b>Fix the segment, and any grouping attribute</b></div>
+      <p>Attach <code>Classification</code>. Add a family or platform column only if the market has one whose levels hold several SKUs each. Both must be constant for a SKU across its whole life.</p>
+      <div class="chk"><span>check</span>Every SKU maps to one segment and one level of each categorical.</div>
+    </div>
+  </div>
+
+  <div class="phase"><span>B &middot; Signals</span><i></i></div>
+  <div class="stack">
+    <div class="step">
+      <div class="step-t"><em>05</em><b>Derive the observed discount</b></div>
+      <p>Per SKU take the rolling maximum price over the previous <em>N</em> weeks, shifted by one so the current week cannot set its own reference, then <code>raw_discount = clip(1 &minus; Price / rolling_max, 0)</code>. This is what defines "on promotion" for the rest of the build.</p>
+      <div class="chk"><span>check</span>Values in [0, 1), and the window carries across a year boundary.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>06</em><b>Define the event calendar</b></div>
+      <p>One <code>flag_*</code> column per retail event. Compute moving events per year from a calendar, never from a fixed week number. This is where a market is genuinely itself &mdash; do not port another market's calendar.</p>
+      <div class="chk"><span>check</span>Each flag is on in exactly its declared weeks, in every year.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>07</em><b>Attach confounders</b></div>
+      <p>Media pressure, seasonality, competitor price and promo intensity &mdash; whatever the market can source, or nothing at all. Map external calendars onto (Year, Week) with an explicit reference table rather than inferring week numbers from dates.</p>
+      <div class="chk"><span>check</span>Zero nulls after the merge and the row count is unchanged.</div>
+    </div>
+  </div>
+
+  <div class="phase"><span>C &middot; Model</span><i></i></div>
+  <div class="stack">
+    <div class="step">
+      <div class="step-t"><em>08</em><b>Compute treatment and outcome</b></div>
+      <p><code>log_price</code> and <code>log_qty</code> from clipped positives, so the estimated effect reads directly as an elasticity.</p>
+      <div class="chk"><span>check</span>Both finite wherever non-null.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>09</em><b>Build the model features</b></div>
+      <p>Whatever this market models &mdash; typically promo history (on promo last week, length of the current run, weeks since the last one), a historical promo-intensity profile by segment and week, and a seasonal volume index normalised within segment.</p>
+      <div class="chk"><span>check</span>No nulls, float dtype throughout &mdash; an object-dtype boolean survives <code>.astype(float)</code> as NaN.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>10</em><b>Assemble X and W</b></div>
+      <p><code>get_dummies</code> on the categoricals with <code>drop_first=True</code>, concatenated with the numeric features. Keep X as a <b>named DataFrame</b>.</p>
+      <div class="chk"><span>check</span>Zero NaNs in X and W; both lists recorded into <code>feature_spec</code>.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>11</em><b>Fit the causal model</b></div>
+      <p>Optionally exclude families that dominate feature importance, then tune and fit a <code>CausalForestDML</code> with boosted nuisance models. Fit from the named frame so the model stores its own column names.</p>
+      <div class="chk"><span>check</span>Nuisance R&sup2; for Y and T inspected; a weak T model is an endogeneity warning, not a success.</div>
+    </div>
+  </div>
+
+  <div class="phase"><span>D &middot; Base values</span><i></i></div>
+  <div class="stack">
+    <div class="step">
+      <div class="step-t"><em>12</em><b>Derive the base price</b></div>
+      <p>Cap the discount, then <code>Price_base = Price / (1 &minus; capped)</code> on promo weeks and <code>Price</code> elsewhere; finally take the element-wise maximum with <code>Price</code>.</p>
+      <div class="chk"><span>check</span><code>(Price_base &lt; Price).sum() == 0</code>.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>13</em><b>Synthesise the base quantity</b></div>
+      <p>Run the model backwards over its own panel: <code>Qty_base = Qty / exp(effect(X, log Price_base, log Price))</code>. Clamp down to observed only on non-promo or imputed rows; flag the rest for review rather than hiding them.</p>
+      <div class="chk"><span>check</span><code>Qty_base &gt; 0</code> everywhere; remaining violations counted and reviewed.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>14</em><b>Assemble panel_df</b></div>
+      <p>Select the structural columns under the contract names, plus the declared flags, features and confounders. Round prices to <code>price_decimals</code> and <b>never round quantities</b>.</p>
+      <div class="chk"><span>check</span>Linear and log columns still agree after rounding &mdash; see &sect;11.</div>
+    </div>
+  </div>
+
+  <div class="phase"><span>E &middot; Package</span><i></i></div>
+  <div class="stack">
+    <div class="step">
+      <div class="step-t"><em>15</em><b>Extend to the plan year</b></div>
+      <p>Cross-join each SKU with every week of the plan year, carry confounders and base values forward from the last complete history year matched on (SKU, Week), reset the lag features to their cold-start values, and <b>re-derive the event flags from the calendar</b> instead of copying them.</p>
+      <div class="chk"><span>check</span>Plan rows = SKUs &times; <code>weeks_per_year</code>; no nulls in any feature; flags correct per week.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>16</em><b>Build the cost table</b></div>
+      <p>Reindex any FX series to daily and forward-fill before joining, filter the price reference to one snapshot date, convert to the panel currency, merge COGS, collapse to one row per SKU.</p>
+      <div class="chk"><span>check</span>Zero null COGS, all positive, one row per panel SKU.</div>
+    </div>
+    <div class="step">
+      <div class="step-t"><em>17</em><b>Compose meta and save</b></div>
+      <p>Fill the template from &sect;4 &mdash; all twenty-eight fields &mdash; then pickle the six keys.</p>
+      <div class="chk"><span>check</span><code>python docs/validate_pickle.py &lt;path.pkl&gt;</code> exits 0.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><b>07</b> Checklist</h2>
+  <ul class="plain">
+    <li>One row per SKU &times; Year &times; Week, no duplicates, <code>Week</code> an integer.</li>
+    <li>All fourteen structural columns present under the contract names.</li>
+    <li><code>Price</code>, <code>Qty</code> and <code>COGS</code> on one price level, one currency.</li>
+    <li><code>Price_base &ge; Price</code>, <code>Qty_base &gt; 0</code>, quantities not rounded.</li>
+    <li>Log columns still equal the logs of their linear counterparts <em>after</em> rounding.</li>
+    <li>Every declared feature, flag and confounder column exists, is numeric, and is non-null on every row of history <em>and</em> plan.</li>
+    <li>Categoricals group SKUs; none has as many levels as there are SKUs.</li>
+    <li>Model fitted from a named DataFrame; X and W widths match the two name lists.</li>
+    <li>One positive cost row per panel SKU.</li>
+    <li>Plan-year rows complete for every SKU across <code>weeks_per_year</code>, actuals null, flags re-derived from the calendar.</li>
+    <li><code>meta</code> complete &mdash; all twenty-eight fields of &sect;4.</li>
+    <li>Validator exits 0.</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><b>08</b> Example artifact &mdash; CZ</h2>
+  <p class="lead">The whole contract populated, in the order a reader meets it: the six keys, then
+  every column of both frames with one real row of values, then the name lists, then
+  <code>meta</code> in full. Values are read from <code>cz_panel_2026_18May.pkl</code>; the
+  <code>meta</code> block is what that pickle would need, since it carries none today.</p>
+
+<pre>data = {
+  <b>"panel_df"</b>:         DataFrame  10 494 x 34   <i># 78 SKUs x (2023-2025 history + 2026 plan)</i>
+  <b>"glc_pe"</b>:           DataFrame  78 x 16       <i># one row per SKU</i>
+  <b>"model"</b>:            CausalForestDML          <i># X width 58, W width 5</i>
+  <b>"feature_names"</b>:    list[str]  58
+  <b>"confounder_names"</b>: list[str]  5
+  <b>"meta"</b>:             dict       20 keys
+}</pre>
+
+  <h3>panel_df &mdash; one SKU, two rows</h3>
+  <p class="tight">Both rows are <code>HX3671/11</code>, week 1: one from the last history year and
+  one from the plan year, so the null rule is visible. Column order is the artifact's own.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Column</th><th>Role</th><th>2025 W1 &mdash; history</th><th>2026 W1 &mdash; plan</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Classification</td><td><span class="tag fix">structural</span> <span class="tag dyn">categorical</span></td><td class="ex">"LRTB"</td><td class="ex">"LRTB"</td></tr>
+      <tr><td class="m">SKU_ctg</td><td><span class="tag dyn">categorical</span></td><td class="ex">"HX3671"</td><td class="ex">"HX3671"</td></tr>
+      <tr><td class="m">SKU</td><td><span class="tag fix">structural</span></td><td class="ex">"HX3671/11"</td><td class="ex">"HX3671/11"</td></tr>
+      <tr><td class="m">Year</td><td><span class="tag fix">structural</span></td><td class="ex">2025</td><td class="ex">2026</td></tr>
+      <tr><td class="m">Week</td><td><span class="tag fix">structural</span></td><td class="ex">1</td><td class="ex">1</td></tr>
+      <tr><td class="m">log_qty</td><td><span class="tag fix">structural</span> &mdash; outcome Y</td><td class="ex">2.772589</td><td class="ex">NaN</td></tr>
+      <tr><td class="m">log_price</td><td><span class="tag fix">structural</span> &mdash; treatment T</td><td class="ex">7.138867</td><td class="ex">NaN</td></tr>
+      <tr><td class="m">discount_oralb</td><td><span class="tag dyn">confounder</span></td><td class="ex">0.317952</td><td class="ex">0.317952</td></tr>
+      <tr><td class="m">Price_oralb</td><td><span class="tag dyn">confounder</span></td><td class="ex">733.565217</td><td class="ex">733.565217</td></tr>
+      <tr><td class="m">Qty_oralb</td><td><span class="tag dyn">confounder</span></td><td class="ex">23.0</td><td class="ex">23.0</td></tr>
+      <tr><td class="m">All_media</td><td><span class="tag dyn">confounder</span></td><td class="ex">182.595349</td><td class="ex">182.595349</td></tr>
+      <tr><td class="m">seasonality</td><td><span class="tag dyn">confounder</span></td><td class="ex">1439.040025</td><td class="ex">1439.040025</td></tr>
+      <tr><td class="m">log_qty_base</td><td><span class="tag fix">structural</span></td><td class="ex">2.772589</td><td class="ex">2.772589</td></tr>
+      <tr><td class="m">log_price_base</td><td><span class="tag fix">structural</span></td><td class="ex">7.138867</td><td class="ex">7.138867</td></tr>
+      <tr><td class="m">Price</td><td><span class="tag fix">structural</span> &mdash; actual</td><td class="ex">1260.0</td><td class="ex">NaN</td></tr>
+      <tr><td class="m">Qty</td><td><span class="tag fix">structural</span> &mdash; actual</td><td class="ex">16.0</td><td class="ex">NaN</td></tr>
+      <tr><td class="m">raw_discount</td><td><span class="tag fix">structural</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">display_discount</td><td><span class="tag fix">structural</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">is_imputed</td><td><span class="tag dyn">feature</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_black_november</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_christmas</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_jan_clearance</td><td><span class="tag dyn">event flag</span></td><td class="ex">1.0</td><td class="ex">1.0</td></tr>
+      <tr><td class="m">flag_mothers_day</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_fathers_childrens</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_summer_clearance</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_valentines</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">flag_easter</td><td><span class="tag dyn">event flag</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">hist_promo_intensity</td><td><span class="tag dyn">feature</span></td><td class="ex">0.144853</td><td class="ex">0.144853</td></tr>
+      <tr><td class="m">seasonal_vol_index</td><td><span class="tag dyn">feature</span></td><td class="ex">0.753698</td><td class="ex">0.753698</td></tr>
+      <tr><td class="m">was_promo_last_week</td><td><span class="tag dyn">feature</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">consecutive_promo_weeks</td><td><span class="tag dyn">feature</span></td><td class="ex">0.0</td><td class="ex">0.0</td></tr>
+      <tr><td class="m">weeks_since_last_promo</td><td><span class="tag dyn">feature</span></td><td class="ex">5.0</td><td class="ex">10.0 &mdash; reset</td></tr>
+      <tr><td class="m">Price_base</td><td><span class="tag fix">structural</span></td><td class="ex">1260.0</td><td class="ex">1260.0</td></tr>
+      <tr><td class="m">Qty_base</td><td><span class="tag fix">structural</span></td><td class="ex">16.0</td><td class="ex">16.0</td></tr>
+    </tbody>
+  </table></div>
+  <p class="tight">Reading the plan row: the four actuals go null, the lag features reset to their
+  cold-start values, and everything else is carried forward from the same SKU and week of the last
+  history year. Note this SKU sat at list price in both weeks, so <code>Price_base</code> equals
+  <code>Price</code> and <code>raw_discount</code> is 0.</p>
+
+  <h3>glc_pe &mdash; one row</h3>
+  <p class="tight">Two columns are required; the other fourteen are what the CZ build happened to
+  produce and are carried unread.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Column</th><th>Role</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="m">SKU</td><td><span class="tag fix">required</span></td><td class="ex">"HX3671/11"</td></tr>
+      <tr><td class="m">Description</td><td>carried</td><td class="ex">"1 Handle (Galway Premium&hellip;); 1 BH; 1 Charger; Retail"</td></tr>
+      <tr><td class="m">PricingCategory</td><td>carried</td><td class="ex">"OHC"</td></tr>
+      <tr><td class="m">CollectionName</td><td>carried</td><td class="ex">"3000 Series"</td></tr>
+      <tr><td class="m">VAT</td><td>carried</td><td class="ex">0.21</td></tr>
+      <tr><td class="m">RRP</td><td>carried</td><td class="ex">1212.00755</td></tr>
+      <tr><td class="m">ListPrice</td><td>carried</td><td class="ex">1001.56095</td></tr>
+      <tr><td class="m">PPWFPercent</td><td>carried</td><td class="ex">0.4</td></tr>
+      <tr><td class="m">PPWFEuro</td><td>carried</td><td class="ex">24.79</td></tr>
+      <tr><td class="m">MaxPromoDiscount</td><td>carried &mdash; unread, see &sect;12</td><td class="ex">"0"</td></tr>
+      <tr><td class="m">TheoreticalPromoLP</td><td>carried</td><td class="ex">1001.56095</td></tr>
+      <tr><td class="m">M3N</td><td>carried</td><td class="ex">601.03355</td></tr>
+      <tr><td class="m">T3N</td><td>carried</td><td class="ex">801.29725</td></tr>
+      <tr><td class="m">Date</td><td>carried &mdash; the price snapshot</td><td class="ex">2026-01-01</td></tr>
+      <tr><td class="m">curr_rate</td><td>carried &mdash; EUR&rarr;CZK used</td><td class="ex">24.245</td></tr>
+      <tr><td class="m">COGS</td><td><span class="tag fix">required</span></td><td class="ex">288.409167</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>feature_names and confounder_names</h3>
+<pre><b>"feature_names"</b>: [                                <i># 58, in fit order</i>
+  <i># 8 event flags</i>
+  "flag_black_november", "flag_christmas", "flag_jan_clearance", "flag_mothers_day",
+  "flag_fathers_childrens", "flag_summer_clearance", "flag_valentines", "flag_easter",
+  <i># 7 numeric features</i>
+  "Year", "is_imputed", "hist_promo_intensity", "seasonal_vol_index",
+  "was_promo_last_week", "consecutive_promo_weeks", "weeks_since_last_promo",
+  <i># 2 one-hots from Classification - "HRTB" dropped as the reference level</i>
+  "Classification_LRTB", "Classification_MRTB",
+  <i># 41 one-hots from SKU_ctg - 39 in the panel, plus the 2 excluded families</i>
+  "SKU_ctg_HX3673", "SKU_ctg_HX3675", ... , "SKU_ctg_HX9992", "SKU_ctg_HX9997"
+]
+
+<b>"confounder_names"</b>: [                             <i># 5, all panel columns</i>
+  "discount_oralb", "Price_oralb", "Qty_oralb", "All_media", "seasonality"
+]</pre>
+  <p class="tight">The categorical columns themselves never appear here &mdash;
+  <code>Classification</code> and <code>SKU_ctg</code> are replaced by their one-hot expansion,
+  while every <code>feature_spec.numeric</code> column appears verbatim.</p>
+
+  <h3>meta &mdash; all twenty keys</h3>
+<pre><b>"meta"</b>: {
+  "schema_version": "1.0",
+  "market_code": "CZ",
+  "market_name": "Czech Republic",
+  "channel": None,
+  "portfolio_label": "Philips Oral Care portfolio",
+
+  "currency_code": "CZK",
+  "currency_symbol": "K&#269;",
+  "price_decimals": 0,
+
+  "weeks_per_year": 52,
+  "history_years": [2023, 2024, 2025],
+  "plan_year": 2026,
+
+  "event_flags": [
+    { "col": "flag_black_november",    "label": "Black November",        "weeks": [45, 46, 47, 48] },
+    { "col": "flag_christmas",         "label": "Christmas",             "weeks": [49, 50, 51, 52] },
+    { "col": "flag_jan_clearance",     "label": "January clearance",     "weeks": [1, 2, 3] },
+    { "col": "flag_valentines",        "label": "Valentines Day",        "weeks": [6, 7] },
+    { "col": "flag_mothers_day",       "label": "Mothers Day",           "weeks": [19, 20] },
+    { "col": "flag_fathers_childrens", "label": "Fathers / Childrens",   "weeks": [22, 23, 24] },
+    { "col": "flag_summer_clearance",  "label": "Summer clearance",      "weeks": [26, 27, 28] },
+    { "col": "flag_easter",            "label": "Easter",                "weeks": [13, 14, 15, 16, 17],
+      "weeks_by_year": { 2023: [14, 15], 2024: [13, 14], 2025: [16, 17], 2026: [14, 15] } },
+  ],
+
+  "segment_labels": ["HRTB", "LRTB", "MRTB"],
+
+  "feature_spec": {
+    "categorical": ["Classification", "SKU_ctg"],
+    "numeric": [
+      "flag_black_november", "flag_christmas", "flag_jan_clearance",
+      "flag_mothers_day", "flag_fathers_childrens", "flag_summer_clearance",
+      "flag_valentines", "flag_easter",
+      "Year", "is_imputed",
+      "hist_promo_intensity", "seasonal_vol_index",
+      "was_promo_last_week", "consecutive_promo_weeks", "weeks_since_last_promo",
+    ],
+  },
+
+  "economics": {
+    "vat_rate": 1.21,
+    "trade_spend_rate": 0.29965,
+    "tpw_rate_tn": 0.0131,
+    "ofse_rate_tn": 0.0664,
+    "legacy_tpw_rate": 0.01,
+    "legacy_ap_rate": 0.16,
+    "legacy_ofse_rate": 0.07,
+    "legacy_trade_cost_rate": 0.24,
+  },
+
+  "discount_grid": { "min": 0.05, "max": 0.40, "step": 0.01, "include_zero": True },
+  "max_discount_default": 0.25,
+  "delta_clip": (-3.0, 3.0),
+  "peak_week_priority": [
+    { "weeks": [45, 46, 47, 48], "multiplier": 1.40 },
+    { "weeks": [49, 50, 51],     "multiplier": 1.35 },
+    { "weeks": [43, 44],         "multiplier": 1.20 },
+    { "weeks": [52],             "multiplier": 1.15 },
+    { "weeks": [1, 2, 3],        "multiplier": 1.10 },
+    { "weeks": [26, 27, 28],     "multiplier": 1.08 },
+    { "weeks": [22, 23, 24],     "multiplier": 1.05 },
+  ],
+  "mandatory_campaign_weeks": [43, 44, 45, 46, 47, 48, 49, 50, 51],
+}</pre>
+  <p class="tight">Shown as the Python literal that goes into the pickle, so
+  <code>None</code>, <code>True</code> and the <code>delta_clip</code> tuple appear as they really
+  are. <code>meta_CZ_example.json</code> holds the same values in JSON, where the tuple reads back
+  as a list and <code>weeks_by_year</code> keys are strings.</p>
+
+  <h3>Where CZ sits against the contract</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Element</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Segments / categoricals</td><td class="m">3 bands, reference HRTB derived &middot; 40 families, 19 of them single-SKU</td></tr>
+      <tr><td>Calendar</td><td class="m">52 weeks declared &middot; campaign weeks 43&ndash;51 &middot; ISO 2026 actually has 53 &mdash; &sect;11</td></tr>
+      <tr><td>Model</td><td class="m">CausalForestDML &middot; X 58 &middot; W 5 &middot; cv 4 &middot; max_features 0.5 &middot; seed 123</td></tr>
+      <tr><td>Price scale</td><td class="m">645&ndash;8 999 CZK &middot; COGS 272&ndash;1 440 CZK</td></tr>
+      <tr><td>Validator</td><td class="m">38 of 40 rules pass with this meta attached &mdash; &sect;10</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><b>09</b> Static today</h2>
+  <p class="lead">What is written into the backend as a literal and has to come from the artifact
+  instead. Pointers only &mdash; the refactor itself is separate work.</p>
+  <ul class="plain">
+    <li><b>The confounder list.</b> The engine refuses to start unless the pickle's
+      <code>confounder_names</code> matches its own literal list. This is the first thing a second
+      market hits.</li>
+    <li><b>The feature list.</b> Sixteen feature names and the categorical pair are written into the
+      feature-matrix code, so any market with different flags fails on a missing column.</li>
+    <li><b>The Czech event calendar.</b> Stamped onto any panel that arrives without those eight
+      flag columns, plus a fixed Easter lookup table.</li>
+    <li><b>The three price-band labels.</b> Repeated across nine locations in filters, validation
+      messages and request defaults.</li>
+    <li><b>The economic rates.</b> VAT, trade spend, TPW, A&amp;P, OFSE and the legacy trade cost.</li>
+    <li><b>The year literals.</b> History and plan years as constants and Pydantic defaults, plus
+      the 52-week assumption in every week loop and accumulator.</li>
+    <li><b>The optimizer bounds.</b> Discount grid, uplift clip, peak-week multipliers, mandatory
+      campaign weeks.</li>
+    <li><b>The currency.</b> Symbol and decimal formatting in the generated insight copy, and the
+      pickle filename standing in for the market's identity.</li>
+  </ul>
+  <p class="tight">Quarter boundaries, the <code>"Full year"</code> label and the confidence-tier
+  labels stay hardcoded on purpose &mdash; they do not vary by market. See the exclusions in
+  &sect;4.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><b>10</b> Validation</h2>
+  <p class="lead"><code>validate_pickle.py</code> opens a pickle read-only, prints one line per rule
+  and exits non-zero on any failure. 40 rules: <code>S*</code> structure, <code>M*</code> meta,
+  <code>P*</code> panel, <code>F*</code> model, <code>G*</code> cost table.</p>
+<pre>python docs/validate_pickle.py &lt;path.pkl&gt;
+python docs/validate_pickle.py &lt;path.pkl&gt; --json   <i># for a build gate</i></pre>
+
+  <div class="scores">
+    <div class="no"><span>CZ pickle as it ships</span><strong>21 / 40</strong><em>4 failed &middot; 15 unverifiable without meta</em></div>
+    <div class="ok"><span>with the &sect;4 meta attached</span><strong>38 / 40</strong><em>2 failed &middot; 0 skipped</em></div>
+  </div>
+  <p class="tight">Attaching the candidate <code>meta</code> block in memory &mdash; the file on disk
+  was not modified &mdash; carries the existing artifact from 21 passes to 38, with no change to the
+  panel, the model or the cost table. <b>The contract is satisfiable by the reference build as it
+  stands.</b> The two remaining failures are data defects, below.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <h2><b>11</b> Defects found</h2>
+  <p class="lead">Found while validating. Four are inside the CZ pickle, written there by the build;
+  the fifth is in the backend. Reported, not fixed &mdash; no artifact and nothing under
+  <code>app/</code> was modified.</p>
+
+  <div class="defect">
+    <div class="dt"><b>1 &middot; Qty_base is zero on 38 rows</b><span class="tag pkl">in the pickle</span></div>
+    <p>The build rounds base quantity to whole units, so anything under half a unit becomes 0. The
+    engine takes <code>log()</code> of it unguarded <span class="cite">promo_engine.py:394</span>,
+    giving <code>-inf</code> in every uplift and profit figure for those SKU-weeks.</p>
+  </div>
+  <div class="defect">
+    <div class="dt"><b>2 &middot; The linear and log base quantities disagree on 35% of rows</b><span class="tag pkl">in the pickle</span></div>
+    <p>That rounding is applied to <code>Qty_base</code> but not to <code>log_qty_base</code>, so the
+    two columns describe different quantities on <b>3 682 of 10 494 rows</b>, up to a factor of 1.96
+    apart. The engine reads whichever exists <span class="cite">promo_engine.py:845, 860-866</span>,
+    so two code paths return different base volumes for the same row. The affected rows have a
+    median base of 7 units, where rounding is a large relative error.</p>
+  </div>
+  <div class="defect">
+    <div class="dt"><b>3 &middot; Plan-year event flags are copied, not re-derived</b><span class="tag pkl">in the pickle</span></div>
+    <p>Plan rows are built from the previous year's template and patched with
+    <code>ffill().bfill()</code> per SKU. <b>44 of 78 SKUs</b> lack a full history year, so their
+    missing weeks inherit a neighbour's flag values: <b>122 plan weeks are flagged for events that
+    are not happening and 261 real event weeks are left unflagged</b>. Those flags are model
+    inputs.</p>
+  </div>
+  <div class="defect">
+    <div class="dt"><b>4 &middot; The 2026 plan year is missing its last week</b><span class="tag pkl">in the pickle</span></div>
+    <p>The build lays a fixed 52-week spine. ISO 2026 has <b>53</b> weeks, because 1 January 2026 is
+    a Thursday &mdash; the panel stops at week 52 and the final trading week of the plan year has
+    nowhere to go. The same applies to 2020 and will recur; it is a property of the year, not of the
+    market, which is why <code>weeks_per_year</code> stays in <code>meta</code>.</p>
+  </div>
+  <div class="defect">
+    <div class="dt"><b>5 &middot; The calendar exists in two places and has drifted</b><span class="tag dyn">in the backend</span></div>
+    <p>The build and the engine each define the Czech events. Christmas is weeks 49&ndash;52 in the
+    build but 49&ndash;51 in the engine <span class="cite">promo_engine.py:160</span>; the engine's
+    Easter table gives 2025 as weeks 15&ndash;16 when Easter Monday falls in ISO week 17 and the
+    panel itself carries 16&ndash;17. Once <code>meta.event_flags</code> is the only definition, the
+    engine-side copy can be deleted.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+  <h2><b>12</b> Open questions</h2>
+  <ul class="plain">
+    <li><b>Price level.</b> Are <code>Price</code> and <code>COGS</code> sell-out including VAT, or
+      something else? The Triple Net bridge assumes they are comparable
+      <span class="cite">promo_engine.py:257-269</span> and no data can prove it. Not carried in
+      <code>meta</code> because it is a global convention rather than a market choice &mdash; but it
+      is still unwritten anywhere.</li>
+    <li><b>Legacy rates.</b> Are TPW 1%, A&amp;P 16%, OFSE 7% and the 24% trade cost still current,
+      and are they per-market or global? Treated as per-market here.</li>
+    <li><b>Peak weeks.</b> Should <code>peak_week_priority</code> and
+      <code>mandatory_campaign_weeks</code> be a commercial input or derived from data? The CZ values
+      are unattributed constants.</li>
+    <li><b>Partial plan years.</b> The engine assumes the plan year is complete. Nothing in the
+      artifact says where real coverage stops, and a <code>coverage</code> block was left out for
+      want of a consumer. It is needed the day a market ships a partially observed plan year.</li>
+    <li><b>An unused guardrail.</b> The CZ cost table carries a <code>MaxPromoDiscount</code> column
+      &mdash; 13 values from 0 to 0.333, stored as strings &mdash; that nothing reads. It looks like
+      a cap on discount depth, but there is no code path to confirm it.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <p>Investigation and documentation only. No <code>.pkl</code>, no notebook, no file under
+  <code>app/</code> was modified; the notebook was read, never executed.</p>
+  <p>Companion files: <code>validate_pickle.py</code> &middot; <code>meta_template.json</code>
+  &middot; <code>meta_CZ_example.json</code>. Citations <code>file:line</code> refer to
+  <code>itaap-digitalit-promosimulator-coreservice/</code>; <code>notebook cell N</code> to the
+  N-th cell of <code>Promo_Eff_EconMLv2__1_.ipynb</code>.</p>
+</footer>
+
+</div>
+</body>
+</html>

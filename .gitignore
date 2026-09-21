@@ -1,0 +1,49 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution and packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+myenv/
+venv/
+env/
+.env
+rgm
+.venv/
+
+# IDE - Common
+.idea/
+.vscode/
+*.swp
+
+# Unit test and coverage
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+#Docker specific
+docker-compose.yml
+
+# Data/model files (loaded from S3 at runtime)
+*.pkl
+*.pickle
+COGS_per_SKU.csv
+
+# Local dev scripts
+run_local.bat
+setup_env.bat
+local_stubs/

@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: itaap-digitalit-promosimulator-coreservice-ingress
+  namespace: {{deployNamespace}}
+  annotations:
+    # nginx.ingress.kubernetes.io/auth-url: http://token-manage-service.itaap-{{env}}-common.svc.cluster.local/token/auth
+    # nginx.ingress.kubernetes.io/auth-response-headers: "authorization"
+    # nginx.ingress.kubernetes.io/auth-cache-key: '$http_authorization$request_uri'
+    nginx.ingress.kubernetes.io/auth-cache-duration: '5m'
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /itaap-digitalit-promosimulator-coreservice$1$2
+spec:
+  defaultBackend:
+    service:
+      name: itaap-digitalit-promosimulator-coreservice-service
+      port:
+        number: 80
+  tls:
+    - hosts:
+        - {{host}}
+      secretName: itaap-tls-secret
+  rules:
+    - host: {{host}}
+      http:
+        paths:
+          - path: "{{env_prefix_for_ingres}}/itaap-digitalit-promosimulator-coreservice(/|$)(.*)"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: itaap-digitalit-promosimulator-coreservice-service
+                port:
+                  number: 80

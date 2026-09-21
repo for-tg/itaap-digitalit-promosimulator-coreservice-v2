@@ -1,0 +1,70 @@
+title = "Custom Secret Detection Rules"
+
+# Rule 1: client_id in key=value style
+[[rules]]
+id = "generic-client-id"
+description = "Potential Client ID (assignment style)"
+regex = '''(?i)(client[-_]?id\s*=\s*["']?[0-9a-zA-Z\-_~./]{8,}["']?)'''
+secretGroup = 1
+entropy = 0.0
+
+# Rule 2: client_id in JSON style
+[[rules]]
+id = "json-client-id"
+description = "Potential Client ID (JSON style)"
+regex = '''(?i)("client[-_]?id"\s*:\s*"?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"?)'''
+secretGroup = 1
+entropy = 0.0
+
+# Rule 3: client_secret in key=value style
+[[rules]]
+id = "generic-client-secret"
+description = "Potential Client Secret (assignment style)"
+regex = '''(?i)(client[-_]?secret\s*=\s*["']?[0-9a-zA-Z\-_~./]{12,}["']?)'''
+secretGroup = 1
+entropy = 0.0
+
+# Rule 4: client_secret in JSON style
+[[rules]]
+id = "json-client-secret"
+description = "Potential Client Secret (JSON style)"
+regex = '''(?i)("client[-_]?secret"\s*:\s*"?[0-9a-zA-Z\-_~./]{12,}"?)'''
+secretGroup = 1
+entropy = 0.0
+
+# Rule 5: generic secrets
+[[rules]]
+id = "generic-secret"
+description = "Potential Secret detected"
+regex = '''(?i)(secret|api[-_]?secret)\s*=\s*["']?[0-9a-zA-Z\-_~./]{12,}["']?'''
+secretGroup = 1
+entropy = 0.0
+
+# Rule 6: tokens
+[[rules]]
+id = "generic-token"
+description = "Hardcoded token detected"
+regex = '''(?i)(token|auth[-_]?token|access[-_]?token)\s*=\s*["']?[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+["']?'''
+secretGroup = 1
+entropy = 0.0
+
+# Postman-style client_id
+[[rules]]
+id = "postman-client-id"
+description = "Postman Environment Client ID"
+regex = '''(?is)"key"\s*:\s*"client[-_]?id"\s*,\s*"value"\s*:\s*"([0-9a-zA-Z\-_~./]{8,})"'''
+secretGroup = 1
+entropy = 0.0
+
+# Postman-style client_secret
+[[rules]]
+id = "postman-client-secret"
+description = "Postman Environment Client Secret"
+regex = '''(?is)"key"\s*:\s*"client[-_]?secret"\s*,\s*"value"\s*:\s*"([0-9a-zA-Z\-_~./]{12,})"'''
+secretGroup = 1
+entropy = 0.0
+
+[allowlist]
+paths = [
+  '''.*constants[/\\].*'''
+]

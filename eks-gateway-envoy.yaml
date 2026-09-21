@@ -1,0 +1,45 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: itaap-digitalit-promosimulator-coreservice-route
+  namespace: {{deployNamespace}}
+  labels:
+    gateway.philips.com/request-buffer: enabled
+spec:
+  hostnames:
+    - {{host}}
+  parentRefs:
+    - kind: Gateway
+      name: envoy-gateway
+      namespace: kube-system
+      sectionName: https-itaap
+  rules:
+    - backendRefs:
+        - kind: Service
+          name: itaap-digitalit-promosimulator-coreservice-service
+          port: 80
+      filters:
+        - extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: itaap-digitalit-promosimulator-coreservice-route-regex-rewrite
+          type: ExtensionRef
+      matches:
+        - path:
+            type: RegularExpression
+            value: {{env_prefix_for_ingres}}/itaap-digitalit-promosimulator-coreservice(/|$)(.*)
+
+---
+
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: itaap-digitalit-promosimulator-coreservice-route-regex-rewrite
+  namespace: {{deployNamespace}}
+spec:
+  urlRewrite:
+    path:
+      replaceRegexMatch:
+        pattern: {{env_prefix_for_ingres}}/itaap-digitalit-promosimulator-coreservice(/|$)(.*)
+        substitution: /itaap-digitalit-promosimulator-coreservice/\2
+      type: ReplaceRegexMatch
